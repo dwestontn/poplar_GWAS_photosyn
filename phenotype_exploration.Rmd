@@ -32,7 +32,7 @@ x<-diag(cor(A[sapply(A, is.numeric)], B[sapply(B, is.numeric)]))
 ID cleaning start of phenotypic variation analysis:
 Note on input data: Need to check original parsing script. Some variables were averaged!!!!
 
-```{r, echo=FALSE}
+```{r, results='hide'}
 dat1<-read.csv("fluorescence_formatted_nov26_2014_rename_SLA.csv")
 head(dat1)
 names(dat1)
@@ -44,27 +44,182 @@ str(dat1)
 
 ```
 
-Calculate 'genetic variation,' from Junfei Gu et al. Plant, Cell and Environment (2014) 37, 22–34; which is really phenotypic varaition. According to the authors, genetic variation was calculated as (Xmax − Xmin )/Xmean, where Xmax and Xmin stands for maximum and minimum value in the population, respectively.
+Histograms of phenotype distributions:
 
 ```{r}
+library(reshape)
+library(ggplot2)
+d <- melt(dat1[, c(4:9)])
+ggplot(d,aes(x = value)) + 
+    facet_wrap(~variable,scales = "free_x") + 
+    geom_histogram()
+
+```
+
+Histograms of phenotype distributions:
+
+```{r}
+d <- melt(dat1[, c(10:16)])
+ggplot(d,aes(x = value)) + 
+    facet_wrap(~variable,scales = "free_x") + 
+    geom_histogram()
+
+```
+
+Histograms of phenotype distributions:
+
+```{r}
+d <- melt(dat1[, c(17:22)])
+ggplot(d,aes(x = value)) + 
+    facet_wrap(~variable,scales = "free_x") + 
+    geom_histogram()
+
+```
+
+Histograms of phenotype distributions:
+
+```{r}
+d <- melt(dat1[, c(23:28)])
+ggplot(d,aes(x = value)) + 
+    facet_wrap(~variable,scales = "free_x") + 
+    geom_histogram()
+
+```
 
 
+Histograms of phenotype distributions:
 
+```{r}
+d <- melt(dat1[, c(29:35)])
+ggplot(d,aes(x = value)) + 
+    facet_wrap(~variable,scales = "free_x") + 
+    geom_histogram()
+
+```
+
+
+Histograms of phenotype distributions:
+
+```{r}
+d <- melt(dat1[, c(36:41)])
+ggplot(d,aes(x = value)) + 
+    facet_wrap(~variable,scales = "free_x") + 
+    geom_histogram()
+
+```
+
+now phenotype correlations between all variables
+
+```{r, results='hide'}
+d<-dat1%>%
+    select(diam = Av_Diameter_mm, Leaf_Area_cm2, res_2_1=Resistwp_Pasm2umol_1, Photo = Anet_Obs_umolm_2s_1, PhiPSII_obs, res_25_1=Resistch25_Pasm2umol_1, Jmax25, SLA=Av_SLA._mg.cm2, Height_cm, CO2c_Pa, CO2i_obs_Pa, gamma25_Pa, GS = StomatalCond_H2O_molm_2s_1, Tr = Trmmol_mmolm_2s_1)
+    
+cor(d, use="complete.obs")
+```
+
+*Corrlegrams*
+
+Some used paramters:
+
+order=TRUE will cause the variables to be ordered using principal component analysis of the correlation matrix. 
+
+panel.pie (the filled portion of the pie indicates the magnitude of the correlation)
+
+panel.shade (the depth of the shading indicates the magnitude of the correlation)
+
+```{r, fig.width=10, fig.height=7}
+library(corrgram)
+corrgram(d, order=TRUE, lower.panel=panel.shade,
+  upper.panel=panel.pie, text.panel=panel.txt,
+  main="Poplar phenotype") 
+```
+
+
+```{r, fig.width=10, fig.height=7}
+corrgram(d, order=TRUE, lower.panel=panel.ellipse,
+  upper.panel=panel.pts, text.panel=panel.txt,
+  diag.panel=panel.minmax,
+  main="Poplar phenotype") 
+
+```
+
+Calculate 'genetic variation,' from Junfei Gu et al. Plant, Cell and Environment (2014) 37, 22–34; which is really phenotypic varaition. According to the authors, genetic variation was calculated as (Xmax − Xmin )/Xmean, where Xmax and Xmin stands for maximum and minimum value in the population, respectively.
+
+```{r, echo=FALSE}
+pheno_var<-function(x) {
+    a<-(max(x, na.rm=TRUE) - min(x, na.rm=TRUE))/mean(x, na.rm=TRUE)
+    a    
+}
+  
+a<-dat1 %>%
+    select(Av_Diameter_mm, Av_SLA._mg.cm2, Height_cm, Leaf_Area_cm2, Anet_Obs_umolm_2s_1, Jmax25, gamma25_Pa, PhiPSII_obs) %>%
+    summarise_each(funs(pheno_var))
+library(knitr)
+kable(a, digits=2)
+
+
+b<-dat1 %>%
+    select(StomatalCond_H2O_molm_2s_1, Trmmol_mmolm_2s_1, CO2i_obs_Pa, CO2c_Pa, Resistwp_Pasm2umol_1, Resistwp25_Pasm2umol_1) %>%
+    summarise_each(funs(pheno_var))
+
+kable(b, digits=2)
 
 ```
 
 Heat maps for each trait vaition for each individual: calculated as in Junfei Gu et al PC&E 2014. Where (Xi - Xmean)/Xmean, where Xi is the ith genotype and Xmean is the population mean. 
 
-```{r}
+```{r, echo=FALSE}
 
-jmean<-63.27
-jmax.variation<-dat1 %>%
-    select(id, Jmax25) %>%
-    mutate(Jmax_variation = (Jmax25 - jmean)/jmean)
+dat1 %>%
+    select(diam = Av_Diameter_mm, SLA = Av_SLA._mg.cm2, Ht = Height_cm, LA = Leaf_Area_cm2, photo = Anet_Obs_umolm_2s_1, Jmax = Jmax25, gamma25_Pa, PhiPSII = PhiPSII_obs, GS = StomatalCond_H2O_molm_2s_1, Trmmol = Trmmol_mmolm_2s_1, Ci = CO2i_obs_Pa, Cc = CO2c_Pa, Rwp2 = Resistwp_Pasm2umol_1, Rwp25 = Resistwp25_Pasm2umol_1) %>%
+    summarise_each(funs(mean(.,na.rm=TRUE)))
+
+ind_phenot_var <- dat1 %>%
+        select(ID = id, diam = Av_Diameter_mm, SLA = Av_SLA._mg.cm2, Ht = Height_cm, LA =   Leaf_Area_cm2, photo = Anet_Obs_umolm_2s_1, Jmax = Jmax25, gamma25_Pa, PhiPSII = PhiPSII_obs, GS = StomatalCond_H2O_molm_2s_1, Trmmol = Trmmol_mmolm_2s_1, Ci = CO2i_obs_Pa, Cc = CO2c_Pa, Rwp2 = Resistwp_Pasm2umol_1, Rwp25 = Resistwp25_Pasm2umol_1) %>%
+      mutate(diam_pv = (diam - 10.46445)/10.46445, SLA_pv = (SLA - 4.130266)/4.130266, Ht_pv = (Ht - 204.1368)/204.1368, LA_pv = (LA - 62.78128)/62.78128, photo_pv = (photo - 6.806034)/6.806034, Jmax_pv = (Jmax - 63.27485)/63.27485, gamma25_Pa_pv = (gamma25_Pa - 1.032019)/1.032019, PhiPSII_pv = (PhiPSII- 0.5505)/0.5505, GS_pv = (GS - 0.1105048)/0.1105048, Trmmol_pv = (Trmmol - 1.149183)/1.149183, Ci_pv = (Ci - 27.67841)/27.67841, Cc_pv = (Cc - 12.54416)/12.54416, Rwp2_pv = (Rwp2 - 2.375769)/2.375769, Rwp25_pv = (Rwp25 - 2.626298)/2.626298)
     
-library(ggvis)
- plot(jmax.variation$Jmax25, jmax.variation$Jmax_variation)
-plot(jmax.variation$Jmax_variation, jmax.variation2$Jmax_variation)
+```
+
+Trait clustering and heat map of the 400 individuals. Each rectangle represents (Xi - Xmean)/Xmean from Junfei Gu et al PC&E 2014, which is an estimate of the phenotypic variation for that trait.
+
+NAs were transformed to 0, which is the mean value for (Xi - Xmean)/Xmean.
+
+
+```{r, fig.width=10, fig.height=7}
+# get rid of NAs
+# dim(ind_phenot_var) before na removal [416  29]
+ind_phenot_var[is.na(ind_phenot_var)] <- 0
+
+# dim(ind_phenot_var) same as after replacing with 0. The mean for each is 0, so this is cool for heat map representation
+library(gplots)
+library("RColorBrewer")
+
+#We’ll have to strip off the sample ids and convert them to row names so that the data matrix contains only sequence count data.
+
+#there are duplicate names, so replacing them with numbers
+a<-ind_phenot_var %>% mutate(id_num = seq(1,416,1))
+id_key<- a %>% select(ID, id_num) #later key to match numers to id.
+
+input_data<- a %>%
+    select(id_num, diam_pv, SLA_pv, Ht_pv, LA_pv, photo_pv, Jmax_pv, gamma25_Pa_pv, PhiPSII_pv, GS_pv, Trmmol_pv, Ci_pv, Cc_pv, Rwp2_pv, Rwp25_pv)
+
+row.names(input_data) <- input_data$id_num
+input_data <- input_data[, -1]
+
+#basic heatmap (not very informative)
+#heatmap(as.matrix(input_data), Rowv = NA, Colv = NA, margins = c(10, 2))
+
+input_data.dist<-dist(input_data)
+row.clus <- hclust(input_data.dist, "mcquitty")
+
+# make the heatmap with Rowv = as.dendrogram(row.clus)
+heatmap(as.matrix(input_data), Rowv = as.dendrogram(row.clus), Colv = NA, margins = c(10, 3))
+
+# now add column -- must transform
+input_data.dist.col<-dist(t(input_data))
+col.clus <- hclust(input_data.dist.col, "mcquitty")
+
+heatmap.2(as.matrix(input_data), Rowv = as.dendrogram(row.clus), Colv = as.dendrogram(col.clus), margins = c(10, 3), trace = "none", col=greenred(100), breaks=seq(-2,2,length.out=101))
 
 
 ```
@@ -72,6 +227,30 @@ plot(jmax.variation$Jmax_variation, jmax.variation2$Jmax_variation)
 
 
 
+
+
+```{r, eval=FALSE}
+#heatmap by correlation
+data_matrix<-data.matrix(ind_phenot_var2)
+cor_t <- cor(t(data_matrix))
+distancet <- as.dist(cor_t)
+hclust_complete <- hclust(distancet, method = "complete")
+dendcomplete <- as.dendrogram(hclust_complete)
+heatmap(data_matrix, Rowv=dendcomplete, Colv=NA, scale="column")
+
+#correlation distance
+distancem <- dist(data_matrix)
+hclust_completem <- hclust(distancem, method = "complete")
+dendcompletem <- as.dendrogram(hclust_completem)
+heatmap(data_matrix, Rowv=dendcompletem, Colv=NA, scale="column")
+
+#correlation distance
+distancem <- dist(data_matrix)
+hclust_completem <- hclust(distancem, method = "complete")
+dendcompletem <- as.dendrogram(hclust_completem)
+heatmap.2(data_matrix, Rowv=dendcompletem, Colv=NA, scale="column", col=brewer.pal(11,"RdBu"), trace="none")
+
+```
 
 
 
