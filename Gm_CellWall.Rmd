@@ -1,0 +1,146 @@
+---
+title: "Trends in Gm, rwp & cell wall chemistry"
+output: html_document
+---
+
+Anslysis objective: To see if there is realtionship between cell wall chemistry and cell wall resistance (rwp or Resistwp25) or Gm (conductance).
+
+Problems: 1) the cell wall chemistry was taken from trunk material while Rm and rwp are calculated from leaves. 2) cell wall data were collected from various outside commongarden sites while leaf physiology was collected from greenhouse material. 
+
+
+```{r, results='hide'}
+setwd("~/Desktop/poplar_data")
+library(dplyr)
+
+dat1<-read.csv("datainput_2_27_2015.csv")
+head(dat1)
+names(dat1)
+
+dat1$id<-toupper(dat1$id) #all letters upper case
+dat1$id<-gsub("*.CSV", "", dat1$id) # replace .csv to blank
+head(dat1)
+str(dat1)
+
+datRecal<-read.csv("CLA_Recalci_Input.csv")
+datCorv<-read.csv("Corvallis_2010.csv")
+datPop<-read.csv("Poplar_C5_C6_12_20_11.csv")
+
+```
+
+getting counts for number of rch and rwp > 0
+
+```{r, eval=FALSE}
+a<-dat1 %>% select(id, Resistch25, Resistwp25) %>% filter(Resistwp25 > 0)
+b<-dat1 %>% select(id, Resistch25, Resistwp25) %>% filter(Resistch25 > 0)
+```
+
+Data manipulation and Gm calculation
+Note: can only caluclate Gm for samples that have rwp > 0. 
+
+```{r}
+dat2<-dat1 %>% select(id, Duplicate, Jmax25, Rdlight25, Resistwp25, Resistch25, gamma.25, Asat_ALight) %>% filter(Duplicate == "Unique" & Resistwp25 > 0) %>% mutate(Gm = 1/Resistwp25)
+```
+
+Investigate relationships or rwp (Resistwp25) with cell wall chemistry
+
+File names for the wall chemistry:
+CLA_SG_Input.csv
+CLA_C5_6.csv
+CLA_Recalci_Input.csv
+Corvallis_2010.csv
+
+###Plots for the Clatskine Site
+
+```{r}
+
+datRecal_join<-inner_join(dat2, datRecal, by = "id")
+plot(datRecal_join$Lignin, datRecal_join$Resistwp25)
+cor.test(datRecal_join$Lignin, datRecal_join$Resistwp25, method = "spearm")
+cor.test(datRecal_join$Lignin, datRecal_join$Resistwp25, method = "pearson")
+plot(datRecal_join$Lignin, datRecal_join$Gm, ylim=c(0,2))
+cor.test(datRecal_join$Lignin, datRecal_join$Gm, method = "spearm")
+cor.test(datRecal_join$Lignin, datRecal_join$Gm, method = "pearson")
+plot(datRecal_join$SG, datRecal_join$Resistwp25)
+plot(datRecal_join$SG, datRecal_join$Gm, ylim=c(0,2))
+plot(datRecal_join$Glucose, datRecal_join$Resistwp25)
+plot(datRecal_join$Glucose, datRecal_join$Gm, ylim=c(0,2))
+plot(datRecal_join$Xylose, datRecal_join$Resistwp25)
+plot(datRecal_join$Xylose, datRecal_join$Gm, ylim=c(0,2))
+plot(datRecal_join$ GlucoseXylose, datRecal_join$Resistwp25)
+plot(datRecal_join$ GlucoseXylose, datRecal_join$Gm, ylim=c(0,2))
+
+```
+
+
+###Plots for Corvallis
+Note, not many points in Corvallis_2010.csv
+```{r}
+
+datCorv_join<-inner_join(dat2, datCorv, by = "id")
+plot(datCorv_join$Lignin, datCorv_join$Resistwp25)
+cor.test(datCorv_join$Lignin, datCorv_join$Resistwp25, method = "spearm")
+cor.test(datCorv_join$Lignin, datCorv_join$Resistwp25, method = "pearson")
+plot(datCorv_join$Lignin, datCorv_join$Gm, ylim=c(0,2))
+cor.test(datCorv_join$Lignin, datCorv_join$Gm, method = "spearm")
+cor.test(datCorv_join$Lignin, datCorv_join$Gm, method = "pearson")
+plot(datCorv_join$S_G, datCorv_join$Resistwp25)
+plot(datCorv_join$S_G, datCorv_join$Gm, ylim=c(0,2))
+plot(datCorv_join$Glucoserelease, datCorv_join$Resistwp25)
+plot(datCorv_join$Glucoserelease, datCorv_join$Gm, ylim=c(0,2))
+plot(datCorv_join$Xyloserelease, datCorv_join$Resistwp25)
+plot(datCorv_join$Xyloserelease, datCorv_join$Gm, ylim=c(0,2))
+plot(datCorv_join$GlucoseXyloserelease, datCorv_join$Resistwp25)
+plot(datCorv_join$GlucoseXyloserelease, datCorv_join$Gm, ylim=c(0,2))
+```
+
+### the Poplar_C5_C6_12_20_11.csv dataset
+details unknown
+```{r}
+
+datPop_join<-inner_join(dat2, datPop, by = "id")
+plot(datPop_join$Lignin, datPop_join$Resistwp25)
+cor.test(datPop_join$Lignin, datPop_join$Resistwp25, method = "spearm")
+cor.test(datPop_join$Lignin, datPop_join$Resistwp25, method = "pearson")
+plot(datPop_join$Lignin, datPop_join$Gm, ylim=c(0,2))
+cor.test(datPop_join$Lignin, datPop_join$Gm, method = "spearm")
+cor.test(datPop_join$Lignin, datPop_join$Gm, method = "pearson")
+plot(datPop_join$S_G, datPop_join$Resistwp25)
+plot(datPop_join$S_G, datPop_join$Gm, ylim=c(0,2))
+plot(datPop_join$C5, datPop_join$Resistwp25)
+plot(datPop_join$C5, datPop_join$Gm, ylim=c(0,2))
+plot(datPop_join$C6, datPop_join$Resistwp25)
+plot(datPop_join$C6, datPop_join$Gm, ylim=c(0,2))
+
+```
+
+**evaluate through correlagrams**
+**data from Poplar_C5_C6_12_20_11.csv**
+
+```{r, echo=FALSE, fig.width=10, fig.height=7}
+library(corrgram)
+corrgram(datPop_join, order=TRUE, lower.panel=panel.shade,
+  upper.panel=panel.pie, text.panel=panel.txt,
+  main="Populus_tri Poplar_C5_C6_12_20_11") 
+
+```
+
+**data from Corvallis_2010.csv**
+
+```{r, echo=FALSE, fig.width=10, fig.height=7}
+
+corrgram(datCorv_join, order=TRUE, lower.panel=panel.shade,
+  upper.panel=panel.pie, text.panel=panel.txt,
+  main="Populus_tri phenotype Corvallis_2010") 
+
+```
+
+**data from Clatskine Site **
+
+```{r, echo=FALSE, fig.width=10, fig.height=7}
+
+corrgram(datRecal_join, order=TRUE, lower.panel=panel.shade,
+  upper.panel=panel.pie, text.panel=panel.txt,
+  main="Populus_tri phenotype Clatskine Site") 
+```
+
+

@@ -2,7 +2,7 @@
 title: "Populus tri photosynthesis phenotype exploration"
 output:
   html_document:
-    highlight: espresso
+    highlight: tango
 ---
 
 Duplicate analyses were taken for same leaf and clones with the same leaf. we need to see how close these replicates were:
@@ -242,7 +242,6 @@ ind_phenot_var <- dat1 %>%
 Trait clustering and heat map of the 400 individuals. Each rectangle represents (Xi - Xmean)/Xmean from Junfei Gu et al PC&E 2014, which is an estimate of the phenotypic variation for that trait.
 
 NAs were transformed to 0, which is the mean value for (Xi - Xmean)/Xmean.
-
 ```{r, fig.width=10, fig.height=8, echo=FALSE}
 # get rid of NAs
 # dim(ind_phenot_var) before na removal [416  29]
@@ -281,7 +280,9 @@ heatmap.2(as.matrix(input_data), Rowv = as.dendrogram(row.clus), Colv = as.dendr
 
 ```
 
+Relationship between Gm and Asat and Jmax
 
+note that photosynthesis values seem low but are on PAR with article: Comparative resource-use efficiencies and growth of Populus trichocarpa and Populus balsamifera under glasshouse conditions1 Virginie M. Pointeau and Robert D. Guy Botany 92: 443–451
 
 
 

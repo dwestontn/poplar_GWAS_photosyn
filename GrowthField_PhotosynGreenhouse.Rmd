@@ -1,0 +1,244 @@
+---
+title: "Trends in growth, rwp and photosyn"
+output: html_document
+---
+
+**Objective**: To see if CO2 mesophyll resistance (rwp) is realted to total growth traits.
+
+**Data limiations**: photosynthesis realted traits are from greenhouse and growth characteristics are from field. 
+
+**Growth data files**: Corv_2012_Growth_rep1.csv, Corv_2012_Growth_rep2.csv, Corv_2012_Growth_rep3.csv, GWAS_Clatskanis_july_2013_Height_Diameter.csv
+
+**Photosyn data files**: datainput_2_27_2015.csv
+
+**Local Git directory**: setwd("~/GitHub/poplar_GWAS_photosyn")
+
+```{r, echo=FALSE, results='hide'}
+setwd("~/Desktop/poplar_data")
+library(dplyr)
+library(ggvis)
+
+dat1<-read.csv("datainput_2_27_2015.csv")
+head(dat1)
+names(dat1)
+
+dat1$id<-toupper(dat1$id) #all letters upper case
+dat1$id<-gsub("*.CSV", "", dat1$id) # replace .csv to blank
+head(dat1)
+str(dat1)
+
+datClatHt<-read.csv("GWAS_Clatskanis_july_2013_Height_Diameter.csv")
+datCor_1<-read.csv("Corv_2012_Growth_rep1.csv")
+datCor_2<-read.csv("Corv_2012_Growth_rep2.csv")
+datCor_3<-read.csv("Corv_2012_Growth_rep3.csv")
+
+```
+
+**Field Traits**    				
+HBS3	Height to the bud scar of year 3 (2011 height)				
+HBS2	Height to the bud scar of year 2 (2010 height)				
+HHB	height to the highest branch			columns F-M are mostly repeated, but with 4 noted trees.	What are they for?
+D20	diameter 20cm				
+D50	diameter 50cm - for stem taper				
+BA	Branch angle				
+SB	sylleptic branches from last year's growth (2011)				
+LENT	# lenticels in 5cm along trunk				
+Tephrina	0-4: 0=zero; 1=1-25%; 2=26-50%; 3=51-75%; 4=76-100%				
+Venturia	0-4: 0=zero; 1=1-25%; 2=26-50%; 3=51-75%; 4=76-100%				
+
+
+**Data manipulation and Gm calculation**
+Note: can only caluclate Gm for samples that have rwp > 0. 
+
+```{r, echo=FALSE}
+dat2<-dat1 %>% select(id, Asat=Asat_ALight, Duplicate, Jmax25, Rdlight25, Resistwp25, Resistch25, gamma.25, Asat_ALight) %>% filter(Duplicate == "Unique" & Resistwp25 > 0) %>% mutate(Gm = 1/Resistwp25)
+```
+
+**Relationship with Clatskanis Height Diameter data using replilcate 1 **
+
+```{r, echo=FALSE}
+
+##start with block replicate of 2 measured
+datClatHt_1<-datClatHt %>% 
+    select(Block, id = Identity, HBS3, HBS2, D20, D50) %>%
+    filter(Block == 1)
+#join with dat2
+datClatHt_1_join<-inner_join(dat2, datClatHt_1, by = "id")
+
+#plots
+datClatHt_1_join %>%
+    ggvis(~Resistwp25, ~Asat) %>% 
+    layer_points() %>%
+    scale_numeric("y", domain = c(0, 20), nice = FALSE, clamp = TRUE)
+
+datClatHt_1_join %>%
+    ggvis(~as.numeric(D50), ~Resistwp25) %>% 
+    layer_points()
+
+datClatHt_1_join %>%
+    ggvis(~as.numeric(D50), ~Gm) %>% 
+    layer_points() %>%
+     scale_numeric("y", domain = c(0, 4), nice = FALSE, clamp = TRUE)
+
+datClatHt_1_join %>%
+    ggvis(~as.numeric(D20), ~Resistwp25) %>% 
+    layer_points()
+
+datClatHt_1_join %>%
+    ggvis(~as.numeric(HBS2), ~Resistwp25) %>% 
+    layer_points()
+
+datClatHt_1_join %>%
+    ggvis(~as.numeric(HBS3), ~Resistwp25) %>% 
+    layer_points()
+
+
+```
+
+**Relationship with Clatskanis Height Diameter data using replilcate 2 **
+
+```{r, echo=FALSE}
+
+datClatHt_2<-datClatHt %>% 
+    select(Block, id = Identity, HBS3, HBS2, D20, D50) %>%
+    filter(Block == 2)
+#join with dat2
+datClatHt_2_join<-inner_join(dat2, datClatHt_2, by = "id")
+
+#plots
+datClatHt_2_join %>%
+    ggvis(~Resistwp25, ~Asat) %>% 
+    layer_points() %>%
+    scale_numeric("y", domain = c(0, 20), nice = FALSE, clamp = TRUE)
+
+datClatHt_2_join %>%
+    ggvis(~as.numeric(D50), ~Resistwp25) %>% 
+    layer_points()
+
+datClatHt_2_join %>%
+    ggvis(~as.numeric(D50), ~Gm) %>% 
+    layer_points() %>%
+     scale_numeric("y", domain = c(0, 4), nice = FALSE, clamp = TRUE)
+
+datClatHt_2_join %>%
+    ggvis(~as.numeric(D50), ~Asat) %>% 
+    layer_points() %>%
+    scale_numeric("y", domain = c(0, 20), nice = FALSE, clamp = TRUE)
+
+datClatHt_2_join %>%
+    ggvis(~as.numeric(D20), ~Resistwp25) %>% 
+    layer_points()
+
+datClatHt_2_join %>%
+    ggvis(~as.numeric(D20), ~Asat) %>% 
+    layer_points() %>%
+    scale_numeric("y", domain = c(0, 20), nice = FALSE, clamp = TRUE)
+
+datClatHt_2_join %>%
+    ggvis(~as.numeric(HBS2), ~Resistwp25) %>% 
+    layer_points()
+
+datClatHt_2_join %>%
+    ggvis(~as.numeric(HBS2), ~Asat) %>% 
+    layer_points() %>%
+    scale_numeric("y", domain = c(0, 20), nice = FALSE, clamp = TRUE)
+
+datClatHt_2_join %>%
+    ggvis(~as.numeric(HBS3), ~Resistwp25) %>% 
+    layer_points() %>%
+    scale_numeric("y", domain = c(0, 20), nice = FALSE, clamp = TRUE)
+
+datClatHt_2_join %>%
+    ggvis(~as.numeric(HBS3), ~Asat) %>% 
+    layer_points() %>%
+    scale_numeric("y", domain = c(0, 20), nice = FALSE, clamp = TRUE)
+
+```
+
+
+**correlegrams**
+**Clatskanis Height Diameter data using replilcate 2**
+```{r, fig.width=10, fig.height=7}
+library(corrgram)
+
+#convert some columns to numeric
+
+datClatHt_2_join<-datClatHt_2_join %>% select(-Duplicate, -id, -Block)
+datClatHt_2_join[, c(8:11)] <- sapply(datClatHt_2_join[, c(8:11)], as.numeric)
+
+corrgram(datClatHt_2_join, order=TRUE, lower.panel=panel.shade,
+  upper.panel=panel.pie, text.panel=panel.txt,
+  main="Clatsk_rep2") 
+```
+
+
+
+**correlegrams**
+**Clatskanis Height Diameter data using replilcate 1**
+```{r, fig.width=10, fig.height=7}
+library(corrgram)
+
+#convert some columns to numeric
+
+datClatHt_1_join<-datClatHt_1_join %>% select(-Duplicate, -id, -Block)
+datClatHt_1_join[, c(8:11)] <- sapply(datClatHt_1_join[, c(8:11)], as.numeric)
+
+corrgram(datClatHt_1_join, order=TRUE, lower.panel=panel.shade,
+  upper.panel=panel.pie, text.panel=panel.txt,
+  main="Clatsk_rep1") 
+```
+
+
+**correlegrams**
+**Corvalis replilcate 1**
+```{r, fig.width=10, fig.height=7}
+
+datCor_1<-datCor_1 %>% select(id=Geno, Height=Corv_R1_Height_2012, DBH=Corv_R1_DBH_2012, SylBr=SylBr_2012)
+datCor_1_join<-inner_join(dat2, datCor_1, by = "id")
+datCor_1_join<-datCor_1_join %>% select(-Duplicate)
+datCor_1_join[, c(9:11)] <- sapply(datCor_1_join[, c(9:11)], as.numeric)
+
+corrgram(datCor_1_join, order=TRUE, lower.panel=panel.shade,
+  upper.panel=panel.pie, text.panel=panel.txt,
+  main="Corvalis_rep1") 
+
+```
+
+**correlegrams**
+**Corvalis replilcate 2**
+
+```{r, fig.width=10, fig.height=7}
+
+
+datCor_2<-datCor_2 %>% select(id=Geno, Height=Corv_R2_Height_2012, DBH=Corv_R3_DBH_2012, SylBr=SylBr_2012)
+datCor_2_join<-inner_join(dat2, datCor_2, by = "id")
+datCor_2_join<-datCor_2_join %>% select(-Duplicate)
+datCor_2_join[, c(9:11)] <- sapply(datCor_2_join[, c(9:11)], as.numeric)
+
+corrgram(datCor_2_join, order=TRUE, lower.panel=panel.shade,
+  upper.panel=panel.pie, text.panel=panel.txt,
+  main="Corvalis_rep2") 
+
+```
+
+
+**correlegrams**
+**Corvalis replilcate 3**
+
+```{r, fig.width=10, fig.height=7}
+
+
+datCor_3<-datCor_3 %>% select(id=Geno, Height=Corv_R3_Height_2012, DBH=Corv_R3_DBH_2012, SylBr=SylBr_2012)
+datCor_3_join<-inner_join(dat2, datCor_3, by = "id")
+datCor_3_join<-datCor_3_join %>% select(-Duplicate)
+datCor_3_join[, c(9:11)] <- sapply(datCor_3_join[, c(9:11)], as.numeric)
+
+corrgram(datCor_3_join, order=TRUE, lower.panel=panel.shade,
+  upper.panel=panel.pie, text.panel=panel.txt,
+  main="Corvalis_rep3") 
+
+```
+
+
+
+

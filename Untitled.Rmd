@@ -1,0 +1,46 @@
+---
+title: "Trends in growth, rwp and photosyn"
+output: html_document
+---
+
+**Objective**: To see if CO2 mesophyll resistance (rwp) is realted to total growth traits.
+
+**Data limiations**: photosynthesis realted traits are from greenhouse and growth characteristics are from field. 
+
+**Growth data files**: Corv_2012_Growth_rep1.csv, Corv_2012_Growth_rep2.csv, Corv_2012_Growth_rep3.csv GWAS_Clatskanis_july_2013_Height_Diameter.csv
+
+**Photosyn data files**:
+
+**Local Git directory**: setwd("~/GitHub/poplar_GWAS_photosyn")
+
+
+```{r}
+setwd("~/GitHub/poplar_GWAS_photosyn")
+library(dplyr)
+
+dat1<-read.csv("datainput_2_27_2015.csv")
+head(dat1)
+names(dat1)
+
+dat1$id<-toupper(dat1$id) #all letters upper case
+dat1$id<-gsub("*.CSV", "", dat1$id) # replace .csv to blank
+head(dat1)
+str(dat1)
+```
+
+**Field Traits**    				
+HBS3	Height to the bud scar of year 3 (2011 height)				
+HBS2	Height to the bud scar of year 2 (2010 height)				
+HHB	height to the highest branch			columns F-M are mostly repeated, but with 4 noted trees.	What are they for?
+D20	diameter 20cm				
+D50	diameter 50cm - for stem taper				
+BA	Branch angle				
+SB	sylleptic branches from last year's growth (2011)				
+LENT	# lenticels in 5cm along trunk				
+Tephrina	0-4: 0=zero; 1=1-25%; 2=26-50%; 3=51-75%; 4=76-100%				
+Venturia	0-4: 0=zero; 1=1-25%; 2=26-50%; 3=51-75%; 4=76-100%				
+
+```{r}
+
+```
+
