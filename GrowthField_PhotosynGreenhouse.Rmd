@@ -92,7 +92,11 @@ datClatHt_1_join %>%
     ggvis(~as.numeric(HBS3), ~Resistwp25) %>% 
     layer_points()
 
-
+D50<-as.numeric(datClatHt_1_join$D50)
+D20<-as.numeric(datClatHt_1_join$D20)
+rwp<-as.numeric(datClatHt_1_join$Resistwp25)
+cor.test(rwp, D50, method = "pearson")
+cor.test(rwp,D20, method = "pearson")
 ```
 
 **Relationship with Clatskanis Height Diameter data using replilcate 2 **
@@ -152,6 +156,13 @@ datClatHt_2_join %>%
     ggvis(~as.numeric(HBS3), ~Asat) %>% 
     layer_points() %>%
     scale_numeric("y", domain = c(0, 20), nice = FALSE, clamp = TRUE)
+
+
+D50<-as.numeric(datClatHt_2_join$D50)
+D20<-as.numeric(datClatHt_2_join$D20)
+rwp<-as.numeric(datClatHt_2_join$Resistwp25)
+cor.test(rwp, D50, method = "pearson")
+cor.test(rwp,D20, method = "pearson")
 
 ```
 

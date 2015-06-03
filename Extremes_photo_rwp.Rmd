@@ -1,0 +1,23 @@
+---
+title: "Extremes_photo_rwp"
+output: html_document
+---
+
+Goal: to see if the trends for the high and low Photo and rwp from the origianl 400 are consistent with 30 extremes (15 high and 15 low) from copiced plants a year later.
+
+High/Low Extremes: Plants were selected because they were the extremes during the summer 2014 measurements. Denotes whether plant was a high or low extreme.
+
+Unique/Replicate: Identifie the plant as a unique measurement or a replicate. If the the plant is a replicates, it is noted whether it is the same leaf, same plant, or clone of the original measurement.
+
+```{r, results='hide'}
+setwd("~/Desktop/poplar_data")
+library(dplyr)
+```
+
+
+
+```{r, echo=FALSE}
+
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
